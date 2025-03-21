@@ -6,17 +6,12 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import BotCommand
 import logging
+from config_reader import config
 import queue  # Используем queue.Queue вместо multiprocessing.Queue
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
-
-# Токены
-TELEGRAM_TOKEN = "7670393303:AAESGfFillmbUdCrukSlUd2eEKO2xydryjE"
-VK_TOKEN = "vk1.a.ThrLrzGLTzpidn4f541Pt2OJxp6ak5ByfcBZ6TCkHIEpVxRQl6GqNOWte4N_-NZJeW60bkye-EaRxhhg69mryaAAUB3o8KtYJICaFngaOxGavSQO2JVVdohLMW8yCVW5UAgQY5kY26-SC2dRufWTgL_dIW_uZ9JmAnf2thF6lk-MycC9fI9_q9m_XAbjWfqZsECQIVnDtPlSmYosxsD_Xg"
-
-if not TELEGRAM_TOKEN or not VK_TOKEN:
-    raise ValueError("BOT_TOKEN или VK_TOKEN не установлены!")
+bot = Bot(token=config.TG_token.get_secret_value())
 
 # Глобальные переменные
 myuser_id = 578651553
@@ -27,7 +22,7 @@ subscribed_users = set()  # Список пользователей, подпи�
 message_queue = queue.Queue()  # Очередь для сообщений из VK
 
 # Инициализация Telegram-бота
-bot = Bot(token=TELEGRAM_TOKEN)
+# bot = Bot(token=TG_TOKEN)
 dp = Dispatcher()
 
 # Установка команд бота
@@ -95,7 +90,7 @@ async def background_task():
 def listen_vk_updates():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    vk_session = vk_api.VkApi(token=VK_TOKEN)
+    vk_session = vk_api.VkApi(token=config.VK_token.get_secret_value())
     longpoll = VkLongPoll(vk_session, mode=64)
     logging.info("Начинаем прослушивание событий VK...")
     for event in longpoll.listen():
